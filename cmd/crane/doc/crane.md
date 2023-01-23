@@ -19,6 +19,7 @@ crane [flags]
 ### SEE ALSO
 
 * [crane append](crane_append.md)	 - Append contents of a tarball to a remote image
+* [crane attach](crane_attach.md)	 - Add an attachment to an image
 * [crane auth](crane_auth.md)	 - Log in or access credentials
 * [crane blob](crane_blob.md)	 - Read a blob from the registry
 * [crane catalog](crane_catalog.md)	 - List the repos in a registry
@@ -34,6 +35,7 @@ crane [flags]
 * [crane pull](crane_pull.md)	 - Pull remote images by reference and store their contents locally
 * [crane push](crane_push.md)	 - Push local image contents to a remote registry
 * [crane rebase](crane_rebase.md)	 - Rebase an image onto a new base image
+* [crane referrers](crane_referrers.md)	 - List referrers of an image
 * [crane tag](crane_tag.md)	 - Efficiently tag a remote image
 * [crane validate](crane_validate.md)	 - Validate that an image is well-formed
 * [crane version](crane_version.md)	 - Print the version

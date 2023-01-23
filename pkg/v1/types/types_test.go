@@ -31,6 +31,7 @@ func TestIsDistributable(t *testing.T) {
 		OCIContentDescriptor,
 		OCIImageIndex,
 		OCIManifestSchema1,
+		OCIArtifactManifestSchema1,
 		OCIConfigJSON,
 		OCILayer,
 		OCIUncompressedLayer,

@@ -23,6 +23,7 @@ const (
 	OCIContentDescriptor           MediaType = "application/vnd.oci.descriptor.v1+json"
 	OCIImageIndex                  MediaType = "application/vnd.oci.image.index.v1+json"
 	OCIManifestSchema1             MediaType = "application/vnd.oci.image.manifest.v1+json"
+	OCIArtifactManifestSchema1     MediaType = "application/vnd.oci.artifact.manifest.v1+json"
 	OCIConfigJSON                  MediaType = "application/vnd.oci.image.config.v1+json"
 	OCILayer                       MediaType = "application/vnd.oci.image.layer.v1.tar+gzip"
 	OCILayerZStd                   MediaType = "application/vnd.oci.image.layer.v1.tar+zstd"
