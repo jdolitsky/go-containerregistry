@@ -68,9 +68,8 @@ func Attach(refstr string, b []byte, mediaType string, opt ...Option) error {
 		return err
 	}
 
-	att, err := mutate.AppendLayers(
-		mutate.MediaType(empty.Image, types.OCIManifestSchema1),
-		static.NewLayer(b, types.MediaType(mediaType)))
+	empty := mutate.MediaType(mutate.ConfigMediaType(empty.Image, types.OCIConfigJSON), types.OCIManifestSchema1)
+	att, err := mutate.AppendLayers(empty, static.NewLayer(b, types.MediaType(mediaType)))
 	if err != nil {
 		return err
 	}
