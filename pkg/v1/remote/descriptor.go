@@ -17,6 +17,8 @@ package remote
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -59,7 +61,7 @@ type Descriptor struct {
 	v1.Descriptor
 	Manifest []byte
 
-	// So we can share this implementation with Image..
+	// So we can share this implementation with Image.
 	platform v1.Platform
 }
 
@@ -235,6 +237,55 @@ func (f *fetcher) url(resource, identifier string) url.URL {
 		Host:   f.Ref.Context().RegistryStr(),
 		Path:   fmt.Sprintf("/v2/%s/%s/%s", f.Ref.Context().RepositoryStr(), resource, identifier),
 	}
+}
+
+// https://github.com/opencontainers/distribution-spec/blob/main/spec.md#referrers-tag-schema
+func fallbackTag(d name.Digest) name.Tag {
+	return d.Context().Tag(fmt.Sprintf("%s-%s", d.Digest().Algorithm, d.Digest().Hex))
+}
+
+func (f *fetcher) fetchReferrers(ctx context.Context, d name.Digest) ([]v1.Descriptor, error) {
+	// Check the Referrers API endpoint first.
+	u := f.url("referrers", d.DigestStr())
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Accept", string(types.OCIImageIndex))
+
+	resp, err := f.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if err := transport.CheckError(resp, http.StatusOK, http.StatusNotFound, http.StatusBadRequest); err != nil {
+		return nil, err
+	}
+	if resp.StatusCode == http.StatusOK {
+		var im v1.IndexManifest
+		if err := json.NewDecoder(resp.Body).Decode(&im); err != nil {
+			return nil, err
+		}
+		return im.Manifests, nil
+	}
+
+	// The registry doesn't support the Referrers API endpoint, so we'll use the fallback tag scheme.
+	b, _, err := f.fetchManifest(fallbackTag(d), []types.MediaType{types.OCIImageIndex})
+	if err != nil {
+		return nil, err
+	}
+	var terr *transport.Error
+	if ok := errors.As(err, &terr); ok && terr.StatusCode == http.StatusNotFound {
+		// Not found just means there are no attachments yet. Start with an empty manifest.
+		return nil, nil
+	}
+	// TODO: What am I supposed to do with a 400 here?
+	var im v1.IndexManifest
+	if err := json.Unmarshal(b, &im); err != nil {
+		return nil, err
+	}
+	return im.Manifests, nil
 }
 
 func (f *fetcher) fetchManifest(ref name.Reference, acceptable []types.MediaType) ([]byte, *v1.Descriptor, error) {
