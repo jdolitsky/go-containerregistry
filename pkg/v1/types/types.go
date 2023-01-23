@@ -18,6 +18,9 @@ package types
 // MediaType is an enumeration of the supported mime types that an element of an image might have.
 type MediaType string
 
+// ArtifactType is an enumeration of the supported mime types that an element of an artifact might have.
+type ArtifactType string
+
 // The collection of known MediaType values.
 const (
 	OCIContentDescriptor           MediaType = "application/vnd.oci.descriptor.v1+json"

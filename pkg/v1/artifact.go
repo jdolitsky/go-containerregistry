@@ -23,32 +23,25 @@ type Artifact interface {
 	// Blobs returns the unordered collection of blobs that comprise this artifact.
 	Blobs() ([]Blob, error)
 
-	// MediaType of this image's manifest.
+	// ArtifactType of this artifact's manifest.
+	ArtifactType() (types.ArtifactType, error)
+
+	// MediaType of this artifact's manifest.
 	MediaType() (types.MediaType, error)
 
 	// Size returns the size of the manifest.
 	Size() (int64, error)
 
-	// ConfigName returns the hash of the image's config file, also known as
-	// the Image ID.
-	ConfigName() (Hash, error)
-
-	// ConfigFile returns this image's config file.
-	ConfigFile() (*ConfigFile, error)
-
-	// RawConfigFile returns the serialized bytes of ConfigFile().
-	RawConfigFile() ([]byte, error)
-
-	// Digest returns the sha256 of this image's manifest.
+	// Digest returns the sha256 of this artifact's manifest.
 	Digest() (Hash, error)
 
-	// Manifest returns this image's Manifest object.
+	// Manifest returns this artifact's Manifest object.
 	Manifest() (*ArtifactManifest, error)
 
 	// RawManifest returns the serialized bytes of Manifest()
 	RawManifest() ([]byte, error)
 
 	// BlobByDigest returns a Blob for interacting with a particular blob of
-	// the image, looking it up by "digest" (the compressed hash).
+	// the artifact, looking it up by "digest" (the compressed hash).
 	BlobByDigest(Hash) (Blob, error)
 }

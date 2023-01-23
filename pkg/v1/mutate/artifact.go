@@ -28,72 +28,53 @@ type artifact struct {
 	base v1.Artifact
 	adds []Addendum
 
-	computed        bool
-	configFile      *v1.ConfigFile
-	manifest        *v1.ArtifactManifest
-	annotations     map[string]string
-	mediaType       *types.MediaType
-	configMediaType *types.MediaType
-	digestMap       map[v1.Hash]v1.Layer
-	subject         *v1.Descriptor
+	computed     bool
+	manifest     *v1.ArtifactManifest
+	annotations  map[string]string
+	artifactType *types.ArtifactType
+	mediaType    *types.MediaType
+	digestMap    map[v1.Hash]v1.Blob
+	subject      *v1.Descriptor
 }
 
 var _ v1.Artifact = (*artifact)(nil)
 
-func (i *artifact) MediaType() (types.MediaType, error) {
-	if i.mediaType != nil {
-		return *i.mediaType, nil
+func (a *artifact) ArtifactType() (types.ArtifactType, error) {
+	if a.mediaType != nil {
+		return *a.artifactType, nil
 	}
-	return i.base.MediaType()
+	return a.base.ArtifactType()
 }
 
-func (i *artifact) compute() error {
+func (a *artifact) MediaType() (types.MediaType, error) {
+	if a.mediaType != nil {
+		return *a.mediaType, nil
+	}
+	return a.base.MediaType()
+}
+
+func (a *artifact) compute() error {
 	return nil
 }
 
 // Blobs returns the unordered collection of blobs that comprise this artifact.
-func (i *artifact) Blobs() ([]v1.Blob, error) {
-	if err := i.compute(); errors.Is(err, stream.ErrNotComputed) {
-		blobs, err := i.base.Blobs()
+func (a *artifact) Blobs() ([]v1.Blob, error) {
+	if err := a.compute(); errors.Is(err, stream.ErrNotComputed) {
+		blobs, err := a.base.Blobs()
 		if err != nil {
 			return nil, err
 		}
-		for _, add := range i.adds {
-			blobs = append(blobs, add.Layer)
+		for _, add := range a.adds {
+			blobs = append(blobs, add.Blob)
 		}
 		return blobs, nil
 	} else if err != nil {
 		return nil, err
 	}
-	return i.base.Blobs()
+	return a.base.Blobs()
 }
 
-// ConfigName returns the hash of the artifact's config file.
-func (i *artifact) ConfigName() (v1.Hash, error) {
-	if err := i.compute(); err != nil {
-		return v1.Hash{}, err
-	}
-	return partial.ConfigName(i)
-}
-
-// ConfigFile returns this artifact's config file.
-func (i *artifact) ConfigFile() (*v1.ConfigFile, error) {
-	if err := i.compute(); err != nil {
-		return nil, err
-	}
-	return i.configFile.DeepCopy(), nil
-}
-
-// ConfigFile returns this image's config file.
-func (i *artifact) RawConfigFile() ([]byte, error) {
-	if err := i.compute(); err != nil {
-		return nil, err
-	}
-	//return i.configFile.DeepCopy(), nil
-	return nil, nil
-}
-
-// Digest returns the sha256 of this image's manifest.
+// Digest returns the sha256 of this artifact's manifest.
 func (i *artifact) Digest() (v1.Hash, error) {
 	if err := i.compute(); err != nil {
 		return v1.Hash{}, err
@@ -128,11 +109,6 @@ func (i *artifact) RawManifest() ([]byte, error) {
 // BlobByDigest returns a Blob for interacting with a particular blob of
 // the artifact, looking it up by "digest" (the compressed hash).
 func (i *artifact) BlobByDigest(h v1.Hash) (v1.Blob, error) {
-	if cn, err := i.ConfigName(); err != nil {
-		return nil, err
-	} else if h == cn {
-		return partial.ConfigLayer(i)
-	}
 	if layer, ok := i.digestMap[h]; ok {
 		return layer, nil
 	}

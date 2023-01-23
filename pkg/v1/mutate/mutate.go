@@ -40,6 +40,7 @@ const whiteoutPrefix = ".wh."
 // to a base image
 type Addendum struct {
 	Layer       v1.Layer
+	Blob        v1.Blob
 	History     v1.History
 	URLs        []string
 	Annotations map[string]string
