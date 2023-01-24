@@ -60,9 +60,10 @@ func Attach(refstr string, b []byte, mediaType string, opt ...Option) error {
 		// The subject doesn't exist, attach to it as if it's an empty OCI image.
 		logs.Progress.Println("subject doesn't exist, attaching to empty image")
 		desc = &v1.Descriptor{
-			MediaType: types.OCIManifestSchema1,
-			Size:      0,
-			Digest:    h,
+			ArtifactType: mediaType,
+			MediaType:    types.OCIManifestSchema1,
+			Size:         0,
+			Digest:       h,
 		}
 	} else if err != nil {
 		return err

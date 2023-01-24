@@ -695,9 +695,10 @@ func (w *writer) commitManifest(ctx context.Context, t Taggable, ref name.Refere
 				return err
 			}
 			desc := v1.Descriptor{
-				MediaType: mf.MediaType,
-				Digest:    h,
-				Size:      size,
+				ArtifactType: "TODO",
+				MediaType:    mf.MediaType,
+				Digest:       h,
+				Size:         size,
 			}
 			if err := w.commitSubjectReferrers(ctx,
 				ref.Context().Digest(mf.Subject.Digest.String()),
