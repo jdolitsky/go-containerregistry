@@ -92,7 +92,7 @@ func TestReferrers_FallbackTag(t *testing.T) {
 
 	// Get the referrers of the root image, by digest.
 	rootRefDigest := rootRef.Context().Digest(rootDesc.Digest.String())
-	referrers, err := remote.Referrers(rootRefDigest)
+	_, referrers, err := remote.Referrers(rootRefDigest)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -130,7 +130,7 @@ func TestReferrers_FallbackTag(t *testing.T) {
 	}
 	// Get the referrers of the root image again, which should only have one entry.
 	rootRefDigest = rootRef.Context().Digest(rootDesc.Digest.String())
-	referrers, err = remote.Referrers(rootRefDigest)
+	_, referrers, err = remote.Referrers(rootRefDigest)
 	if err != nil {
 		t.Fatal(err)
 	}
