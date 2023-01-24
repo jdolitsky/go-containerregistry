@@ -580,39 +580,18 @@ func unpackTaggable(t Taggable) ([]byte, *v1.Descriptor, error) {
 }
 
 // commitSubjectReferrers is responsible for updating the fallback tag manifest to track descriptors referring to a subject for registries that don't yet support the Referrers API.
+// TODO: this method only uses the fallback tag for now
 func (w *writer) commitSubjectReferrers(ctx context.Context, sub name.Digest, add v1.Descriptor) error {
-	// Check if the registry supports Referrers API.
-	// TODO: This should be done once per registry, not once per subject.
-	u := w.url(fmt.Sprintf("/v2/%s/referrers/%s", w.repo.RepositoryStr(), sub.DigestStr()))
+	// The registry doesn't support Referrers API, we need to update the manifest tagged with the fallback tag.
+	// Make the request to GET the current manifest.
+	t := fallbackTag(sub)
+	u := w.url(fmt.Sprintf("/v2/%s/manifests/%s", w.repo.RepositoryStr(), t.Identifier()))
 	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Accept", string(types.OCIImageIndex))
 	resp, err := w.client.Do(req.WithContext(ctx))
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if err := transport.CheckError(resp, http.StatusOK, http.StatusNotFound, http.StatusBadRequest); err != nil {
-		return err
-	}
-	if resp.StatusCode == http.StatusOK {
-		// The registry supports Referrers API. The registry is responsible for updating the referrers list.
-		return nil
-	}
-
-	// The registry doesn't support Referrers API, we need to update the manifest tagged with the fallback tag.
-	// Make the request to GET the current manifest.
-	t := fallbackTag(sub)
-	u = w.url(fmt.Sprintf("/v2/%s/manifests/%s", w.repo.RepositoryStr(), t.Identifier()))
-	req, err = http.NewRequest(http.MethodGet, u.String(), nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Accept", string(types.OCIImageIndex))
-	resp, err = w.client.Do(req.WithContext(ctx))
 	if err != nil {
 		return err
 	}
