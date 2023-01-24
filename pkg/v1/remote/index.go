@@ -181,12 +181,8 @@ func (r *remoteIndex) Manifests() ([]partial.Describable, error) {
 	return manifests, nil
 }
 
-func (r *remoteIndex) Referrers() ([]v1.Descriptor, error) {
-	descs, err := r.fetcher.fetchReferrers(r.context, r.Ref.Context().Digest(r.descriptor.Digest.String()))
-	if err != nil {
-		return nil, err
-	}
-	return descs, nil
+func (r *remoteIndex) Referrers() (*v1.IndexManifest, []v1.Descriptor, error) {
+	return r.fetcher.fetchReferrers(r.context, r.Ref.Context().Digest(r.descriptor.Digest.String()))
 }
 
 // TODO: img.Subject()?

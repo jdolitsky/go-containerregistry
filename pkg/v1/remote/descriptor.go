@@ -244,23 +244,23 @@ func fallbackTag(d name.Digest) name.Tag {
 	return d.Context().Tag(fmt.Sprintf("%s-%s", d.Digest().Algorithm, d.Digest().Hex))
 }
 
-func (f *fetcher) fetchReferrers(ctx context.Context, d name.Digest) ([]v1.Descriptor, error) {
+func (f *fetcher) fetchReferrers(ctx context.Context, d name.Digest) (*v1.IndexManifest, []v1.Descriptor, error) {
 	// The registry doesn't support the Referrers API endpoint, so we'll use the fallback tag scheme.
 	b, _, err := f.fetchManifest(fallbackTag(d), []types.MediaType{types.OCIImageIndex})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	var terr *transport.Error
 	if ok := errors.As(err, &terr); ok && terr.StatusCode == http.StatusNotFound {
 		// Not found just means there are no attachments yet. Start with an empty manifest.
-		return nil, nil
+		return nil, nil, nil
 	}
 	// TODO: What am I supposed to do with a 400 here?
 	var im v1.IndexManifest
 	if err := json.Unmarshal(b, &im); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return im.Manifests, nil
+	return &im, im.Manifests, nil
 }
 
 func (f *fetcher) fetchManifest(ref name.Reference, acceptable []types.MediaType) ([]byte, *v1.Descriptor, error) {

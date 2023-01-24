@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/google/go-containerregistry/pkg/crane"
@@ -31,15 +32,17 @@ func NewCmdReferrers(options *[]crane.Option) *cobra.Command {
 		RunE: func(_ *cobra.Command, args []string) error {
 			refstr := args[0]
 
-			descs, err := crane.Referrers(refstr, *options...)
+			index, _, err := crane.Referrers(refstr, *options...)
 			if err != nil {
 				return err
 			}
 
-			// TODO: Format this better.
-			for _, d := range descs {
-				fmt.Println("-", d.Digest, d.MediaType)
+			b, err := json.Marshal(&index)
+			if err != nil {
+				return err
 			}
+
+			fmt.Print(string(b))
 			return nil
 		},
 	}
