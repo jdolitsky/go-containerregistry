@@ -52,9 +52,10 @@ func TestReferrers_FallbackTag(t *testing.T) {
 			t.Fatal(err)
 		}
 		return v1.Descriptor{
-			Digest:    d,
-			Size:      sz,
-			MediaType: mt,
+			Digest:       d,
+			Size:         sz,
+			MediaType:    mt,
+			ArtifactType: "TODO",
 		}
 	}
 
