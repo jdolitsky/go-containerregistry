@@ -18,30 +18,30 @@ import (
 	"os"
 
 	"github.com/google/go-containerregistry/pkg/crane"
+	"github.com/google/go-containerregistry/pkg/v1/types"
 	"github.com/spf13/cobra"
 )
 
 // NewCmdAttach creates a new cobra.Command for the attach subcommand.
 func NewCmdAttach(options *[]crane.Option) *cobra.Command {
-	var attachType, fn string
+	var artifactType, mediaType string
 
 	attachmentsCmd := &cobra.Command{
 		Use:   "attach",
 		Short: "Add an attachment to an image",
 		// TODO: Long
-		Args: cobra.ExactArgs(1),
+		Args: cobra.ExactArgs(2),
 		RunE: func(_ *cobra.Command, args []string) error {
 			refstr := args[0]
+			fn := args[1]
 			b, err := os.ReadFile(fn)
 			if err != nil {
 				return err
 			}
-			return crane.Attach(refstr, b, attachType, *options...)
+			return crane.Attach(refstr, b, artifactType, mediaType, *options...)
 		},
 	}
-	attachmentsCmd.Flags().StringVarP(&attachType, "type", "t", "", "Type of attachment")
-	attachmentsCmd.Flags().StringVarP(&fn, "file", "f", "", "Name of file to attach")
-	attachmentsCmd.MarkFlagRequired("type")
-	attachmentsCmd.MarkFlagRequired("file")
+	attachmentsCmd.Flags().StringVar(&artifactType, "artifact-type", string(types.OCIConfigJSON), "Value for config.mediaType field")
+	attachmentsCmd.Flags().StringVar(&mediaType, "media-type", string(types.OCILayer), "Value for layers[0].mediaType field")
 	return attachmentsCmd
 }

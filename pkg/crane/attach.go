@@ -32,7 +32,7 @@ import (
 // Attach attaches contents to an image reference with the given media type.
 //
 // These attached descriptors can be listed using crane.Referrers.
-func Attach(refstr string, b []byte, mediaType string, opt ...Option) error {
+func Attach(refstr string, b []byte, artifactType string, mediaType string, opt ...Option) error {
 	o := makeOptions(opt...)
 
 	var dig name.Digest
@@ -60,7 +60,7 @@ func Attach(refstr string, b []byte, mediaType string, opt ...Option) error {
 		// The subject doesn't exist, attach to it as if it's an empty OCI image.
 		logs.Progress.Println("subject doesn't exist, attaching to empty image")
 		desc = &v1.Descriptor{
-			ArtifactType: mediaType,
+			ArtifactType: artifactType,
 			MediaType:    types.OCIManifestSchema1,
 			Size:         0,
 			Digest:       h,
@@ -69,7 +69,7 @@ func Attach(refstr string, b []byte, mediaType string, opt ...Option) error {
 		return err
 	}
 
-	empty := mutate.MediaType(mutate.ConfigMediaType(empty.Image, types.OCIConfigJSON), types.OCIManifestSchema1)
+	empty := mutate.MediaType(mutate.ConfigMediaType(empty.Image, types.MediaType(artifactType)), types.OCIManifestSchema1)
 	att, err := mutate.AppendLayers(empty, static.NewLayer(b, types.MediaType(mediaType)))
 	if err != nil {
 		return err

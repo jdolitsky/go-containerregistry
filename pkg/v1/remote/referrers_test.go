@@ -27,6 +27,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/mutate"
 	"github.com/google/go-containerregistry/pkg/v1/random"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
+	"github.com/google/go-containerregistry/pkg/v1/types"
 )
 
 func TestReferrers_FallbackTag(t *testing.T) {
@@ -55,7 +56,7 @@ func TestReferrers_FallbackTag(t *testing.T) {
 			Digest:       d,
 			Size:         sz,
 			MediaType:    mt,
-			ArtifactType: "TODO",
+			ArtifactType: "application/testing123",
 		}
 	}
 
@@ -69,6 +70,7 @@ func TestReferrers_FallbackTag(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	rootImg = mutate.ConfigMediaType(rootImg, types.MediaType("application/testing123"))
 	if err := remote.Write(rootRef, rootImg); err != nil {
 		t.Fatal(err)
 	}
@@ -84,6 +86,7 @@ func TestReferrers_FallbackTag(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	leafImg = mutate.ConfigMediaType(leafImg, types.MediaType("application/testing123"))
 	leafImg = mutate.Subject(leafImg, rootDesc).(v1.Image)
 	if err := remote.Write(leafRef, leafImg); err != nil {
 		t.Fatal(err)

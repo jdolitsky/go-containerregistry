@@ -656,6 +656,9 @@ func (w *writer) commitManifest(ctx context.Context, t Taggable, ref name.Refere
 	var mf struct {
 		MediaType types.MediaType `json:"mediaType"`
 		Subject   *v1.Descriptor  `json:"subject,omitempty"`
+		Config    struct {
+			MediaType types.MediaType `json:"mediaType"`
+		} `json:"config"`
 	}
 	if err := json.Unmarshal(raw, &mf); err != nil {
 		return err
@@ -695,7 +698,7 @@ func (w *writer) commitManifest(ctx context.Context, t Taggable, ref name.Refere
 				return err
 			}
 			desc := v1.Descriptor{
-				ArtifactType: "TODO",
+				ArtifactType: string(mf.Config.MediaType),
 				MediaType:    mf.MediaType,
 				Digest:       h,
 				Size:         size,
