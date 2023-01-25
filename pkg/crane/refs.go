@@ -12,24 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package remote
+package crane
 
 import (
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
+	"github.com/google/go-containerregistry/pkg/v1/remote"
 )
 
-// Referrers returns a list of descriptors that refer to the given manifest digest.
+// Refs returns descriptors that refer to a given image reference.
 //
-// The subject manifest doesn't have to exist in the registry for there to be descriptors that refer to it.
-func Referrers(d name.Digest, options ...Option) (*v1.IndexManifest, error) {
-	o, err := makeOptions(d.Context(), options...)
+// New attachments can be added with crane.Attach.
+func Refs(refstr string, opt ...Option) (*v1.IndexManifest, error) {
+	o := makeOptions(opt...)
+
+	var dig name.Digest
+	ref, err := name.ParseReference(refstr, o.Name...)
 	if err != nil {
 		return nil, err
 	}
-	f, err := makeFetcher(d, o)
-	if err != nil {
-		return nil, err
+	if digr, ok := ref.(name.Digest); ok {
+		dig = digr
+	} else {
+		desc, err := remote.Head(ref, o.Remote...)
+		if err != nil {
+			// If you asked for a tag and it doesn't exist, we can't help you.
+			return nil, err
+		}
+		dig = ref.Context().Digest(desc.Digest.String())
 	}
-	return f.fetchReferrers(o.context, d)
+
+	return remote.Referrers(dig, o.Remote...)
 }

@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC All Rights Reserved.
+// Copyright 2023 Google LLC All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,10 +27,9 @@ func NewCmdAttach(options *[]crane.Option) *cobra.Command {
 	var artifactType, mediaType string
 
 	attachmentsCmd := &cobra.Command{
-		Use:   "attach",
+		Use:   "attach IMAGE FILE",
 		Short: "Add an attachment to an image",
-		// TODO: Long
-		Args: cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(_ *cobra.Command, args []string) error {
 			refstr := args[0]
 			fn := args[1]
@@ -41,7 +40,7 @@ func NewCmdAttach(options *[]crane.Option) *cobra.Command {
 			return crane.Attach(refstr, b, artifactType, mediaType, *options...)
 		},
 	}
-	attachmentsCmd.Flags().StringVar(&artifactType, "artifact-type", string(types.OCIConfigJSON), "Value for config.mediaType field")
-	attachmentsCmd.Flags().StringVar(&mediaType, "media-type", string(types.OCILayer), "Value for layers[0].mediaType field")
+	attachmentsCmd.Flags().StringVar(&artifactType, "artifact-type", string(types.OCIConfigJSON), "value for config.mediaType field")
+	attachmentsCmd.Flags().StringVar(&mediaType, "media-type", string(types.OCILayer), "value for layers[0].mediaType field")
 	return attachmentsCmd
 }
