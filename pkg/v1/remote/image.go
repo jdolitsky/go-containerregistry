@@ -139,8 +139,8 @@ func (r *remoteImage) Descriptor() (*v1.Descriptor, error) {
 	return r.descriptor, err
 }
 
-func (r *remoteImage) Referrers() (*v1.IndexManifest, error) {
-	return r.fetcher.fetchReferrers(r.context, r.Ref.Context().Digest(r.descriptor.Digest.String()))
+func (r *remoteImage) Referrers(filter map[string]string) (*v1.IndexManifest, error) {
+	return r.fetcher.fetchReferrers(r.context, filter, r.Ref.Context().Digest(r.descriptor.Digest.String()))
 }
 
 // TODO: img.Subject()?

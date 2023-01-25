@@ -23,7 +23,7 @@ import (
 // Refs returns descriptors that refer to a given image reference.
 //
 // New attachments can be added with crane.Attach.
-func Refs(refstr string, opt ...Option) (*v1.IndexManifest, error) {
+func Refs(refstr string, filter map[string]string, opt ...Option) (*v1.IndexManifest, error) {
 	o := makeOptions(opt...)
 
 	var dig name.Digest
@@ -42,5 +42,6 @@ func Refs(refstr string, opt ...Option) (*v1.IndexManifest, error) {
 		dig = ref.Context().Digest(desc.Digest.String())
 	}
 
-	return remote.Referrers(dig, o.Remote...)
+	opts := append(o.Remote, remote.WithFilter(filter))
+	return remote.Referrers(dig, opts...)
 }

@@ -31,5 +31,5 @@ func Referrers(d name.Digest, options ...Option) (*v1.IndexManifest, error) {
 	if err != nil {
 		return nil, err
 	}
-	return f.fetchReferrers(o.context, d)
+	return f.fetchReferrers(o.context, o.filter, d)
 }

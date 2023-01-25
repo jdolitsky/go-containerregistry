@@ -244,7 +244,7 @@ func fallbackTag(d name.Digest) name.Tag {
 	return d.Context().Tag(fmt.Sprintf("%s-%s", d.Digest().Algorithm, d.Digest().Hex))
 }
 
-func (f *fetcher) fetchReferrers(ctx context.Context, d name.Digest) (*v1.IndexManifest, error) {
+func (f *fetcher) fetchReferrers(ctx context.Context, filter map[string]string, d name.Digest) (*v1.IndexManifest, error) {
 	// The registry doesn't support the Referrers API endpoint, so we'll use the fallback tag scheme.
 	b, _, err := f.fetchManifest(fallbackTag(d), []types.MediaType{types.OCIImageIndex})
 	if err != nil {
@@ -259,6 +259,28 @@ func (f *fetcher) fetchReferrers(ctx context.Context, d name.Digest) (*v1.IndexM
 	var im v1.IndexManifest
 	if err := json.Unmarshal(b, &im); err != nil {
 		return nil, err
+	}
+
+	// If filter applied, filter out by artifactType and add annotation
+	if filter != nil {
+		keys := make([]string, 0, len(filter))
+		for k := range filter {
+			keys = append(keys, k)
+		}
+		if im.Annotations == nil {
+			im.Annotations = map[string]string{}
+		}
+		im.Annotations["org.opencontainers.referrers.filtersApplied"] = strings.Join(keys, ",")
+		if v, ok := filter["artifactType"]; ok {
+			tmp := []v1.Descriptor{}
+			for _, desc := range im.Manifests {
+				if desc.ArtifactType == v {
+					tmp = append(tmp, desc)
+				}
+			}
+			im.Manifests = tmp
+		}
+
 	}
 	return &im, nil
 }

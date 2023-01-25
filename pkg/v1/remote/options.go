@@ -46,6 +46,7 @@ type options struct {
 	pageSize                       int
 	retryBackoff                   Backoff
 	retryPredicate                 retry.Predicate
+	filter                         map[string]string
 }
 
 var defaultPlatform = v1.Platform{
@@ -300,6 +301,14 @@ func WithRetryBackoff(backoff Backoff) Option {
 func WithRetryPredicate(predicate retry.Predicate) Option {
 	return func(o *options) error {
 		o.retryPredicate = predicate
+		return nil
+	}
+}
+
+// WithFilter sets the filter querystring for HTTP operations.
+func WithFilter(filter map[string]string) Option {
+	return func(o *options) error {
+		o.filter = filter
 		return nil
 	}
 }

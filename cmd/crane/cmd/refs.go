@@ -24,6 +24,8 @@ import (
 
 // NewCmdRef creates a new cobra.Command for the refs subcommand.
 func NewCmdRefs(options *[]crane.Option) *cobra.Command {
+	var artifactType string
+
 	refsCmd := &cobra.Command{
 		Use:   "refs IMAGE",
 		Short: "List referrers of an image",
@@ -31,7 +33,14 @@ func NewCmdRefs(options *[]crane.Option) *cobra.Command {
 		RunE: func(_ *cobra.Command, args []string) error {
 			refstr := args[0]
 
-			index, err := crane.Refs(refstr, *options...)
+			var filter map[string]string
+			if artifactType != "" {
+				filter = map[string]string{
+					"artifactType": artifactType,
+				}
+			}
+
+			index, err := crane.Refs(refstr, filter, *options...)
 			if err != nil {
 				return err
 			}
@@ -45,5 +54,6 @@ func NewCmdRefs(options *[]crane.Option) *cobra.Command {
 			return nil
 		},
 	}
+	refsCmd.Flags().StringVar(&artifactType, "artifact-type", "", "filter for artifactType")
 	return refsCmd
 }
