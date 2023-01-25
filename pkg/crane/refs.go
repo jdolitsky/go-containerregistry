@@ -23,13 +23,13 @@ import (
 // Refs returns descriptors that refer to a given image reference.
 //
 // New attachments can be added with crane.Attach.
-func Refs(refstr string, filter map[string]string, opt ...Option) (*v1.IndexManifest, error) {
+func Refs(refstr string, filter map[string]string, opt ...Option) (*v1.IndexManifest, *remote.ReferrersNextPage, error) {
 	o := makeOptions(opt...)
 
 	var dig name.Digest
 	ref, err := name.ParseReference(refstr, o.Name...)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if digr, ok := ref.(name.Digest); ok {
 		dig = digr
@@ -37,7 +37,7 @@ func Refs(refstr string, filter map[string]string, opt ...Option) (*v1.IndexMani
 		desc, err := remote.Head(ref, o.Remote...)
 		if err != nil {
 			// If you asked for a tag and it doesn't exist, we can't help you.
-			return nil, err
+			return nil, nil, err
 		}
 		dig = ref.Context().Digest(desc.Digest.String())
 	}

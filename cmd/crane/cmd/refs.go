@@ -40,9 +40,12 @@ func NewCmdRefs(options *[]crane.Option) *cobra.Command {
 				}
 			}
 
-			index, err := crane.Refs(refstr, filter, *options...)
+			index, next, err := crane.Refs(refstr, filter, *options...)
 			if err != nil {
 				return err
+			}
+			if next != nil {
+				return fmt.Errorf("crane.Refs returned next page, but do not know how to handle")
 			}
 
 			b, err := json.Marshal(&index)

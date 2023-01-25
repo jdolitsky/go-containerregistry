@@ -22,14 +22,23 @@ import (
 // Referrers returns a list of descriptors that refer to the given manifest digest.
 //
 // The subject manifest doesn't have to exist in the registry for there to be descriptors that refer to it.
-func Referrers(d name.Digest, options ...Option) (*v1.IndexManifest, error) {
+func Referrers(d name.Digest, options ...Option) (*v1.IndexManifest, *ReferrersNextPage, error) {
 	o, err := makeOptions(d.Context(), options...)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	f, err := makeFetcher(d, o)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return f.fetchReferrers(o.context, o.filter, d)
+	index, err := f.fetchReferrers(o.context, o.filter, d)
+	return index, nil, err
+}
+
+// TODO: Implement this once real referrers API endpoint is used
+type ReferrersNextPage struct{}
+
+// TODO: Implement this once real referrers API endpoint is used
+func (nextPage *ReferrersNextPage) Referrers() (*v1.IndexManifest, *ReferrersNextPage, error) {
+	panic("not yet implemented")
 }
