@@ -96,11 +96,11 @@ func TestReferrers_FallbackTag(t *testing.T) {
 
 	// Get the referrers of the root image, by digest.
 	rootRefDigest := rootRef.Context().Digest(rootDesc.Digest.String())
-	_, referrers, err := remote.Referrers(rootRefDigest)
+	index, err := remote.Referrers(rootRefDigest)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if d := cmp.Diff([]v1.Descriptor{leafDesc}, referrers); d != "" {
+	if d := cmp.Diff([]v1.Descriptor{leafDesc}, index.Manifests); d != "" {
 		t.Fatalf("referrers diff (-want,+got): %s", d)
 	}
 
@@ -117,7 +117,7 @@ func TestReferrers_FallbackTag(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if d := cmp.Diff(referrers, mf.Manifests); d != "" {
+	if d := cmp.Diff(index.Manifests, mf.Manifests); d != "" {
 		t.Fatalf("fallback tag diff (-want,+got): %s", d)
 	}
 
@@ -134,11 +134,11 @@ func TestReferrers_FallbackTag(t *testing.T) {
 	}
 	// Get the referrers of the root image again, which should only have one entry.
 	rootRefDigest = rootRef.Context().Digest(rootDesc.Digest.String())
-	_, referrers, err = remote.Referrers(rootRefDigest)
+	index, err = remote.Referrers(rootRefDigest)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if d := cmp.Diff([]v1.Descriptor{leafDesc}, referrers); d != "" {
+	if d := cmp.Diff([]v1.Descriptor{leafDesc}, index.Manifests); d != "" {
 		t.Fatalf("referrers diff after second push (-want,+got): %s", d)
 	}
 }

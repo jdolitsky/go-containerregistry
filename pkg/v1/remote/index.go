@@ -181,7 +181,7 @@ func (r *remoteIndex) Manifests() ([]partial.Describable, error) {
 	return manifests, nil
 }
 
-func (r *remoteIndex) Referrers() (*v1.IndexManifest, []v1.Descriptor, error) {
+func (r *remoteIndex) Referrers() (*v1.IndexManifest, error) {
 	return r.fetcher.fetchReferrers(r.context, r.Ref.Context().Digest(r.descriptor.Digest.String()))
 }
 

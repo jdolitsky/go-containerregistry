@@ -22,14 +22,14 @@ import (
 // Referrers returns a list of descriptors that refer to the given manifest digest.
 //
 // The subject manifest doesn't have to exist in the registry for there to be descriptors that refer to it.
-func Referrers(d name.Digest, options ...Option) (*v1.IndexManifest, []v1.Descriptor, error) {
+func Referrers(d name.Digest, options ...Option) (*v1.IndexManifest, error) {
 	o, err := makeOptions(d.Context(), options...)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	f, err := makeFetcher(d, o)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	return f.fetchReferrers(o.context, d)
 }
