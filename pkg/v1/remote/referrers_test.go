@@ -147,4 +147,51 @@ func TestReferrers_FallbackTag(t *testing.T) {
 	if d := cmp.Diff([]v1.Descriptor{leafDesc}, index.Manifests); d != "" {
 		t.Fatalf("referrers diff after second push (-want,+got): %s", d)
 	}
+
+	// Try applying filters and verify number of manifests and and annotations
+	goodFilter := map[string]string{types.OCIFilterArtifactType: "application/testing123"}
+	index, next, err = remote.Referrers(rootRefDigest, remote.WithFilter(goodFilter))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if next != nil {
+		t.Fatalf("next was not nil, was %v", next)
+	}
+	if numManifests := len(index.Manifests); numManifests == 0 {
+		t.Fatal("index contained 0 manifests")
+	}
+	if index.Annotations == nil {
+		t.Fatalf("index annotations were nil after filter was applied")
+	}
+	filtersApplied, hasExpectedAnnotation := index.Annotations[types.OCIAnnotationFiltersApplied]
+	if !hasExpectedAnnotation {
+		t.Fatalf("index annotations missing %s", types.OCIAnnotationFiltersApplied)
+	}
+	if filtersApplied != types.OCIFilterArtifactType {
+		t.Fatalf("index annotations %s expected to be %s but was %s",
+			types.OCIAnnotationFiltersApplied, types.OCIFilterArtifactType, filtersApplied)
+	}
+
+	badFilter := map[string]string{types.OCIFilterArtifactType: "application/testing123BADDDD"}
+	index, next, err = remote.Referrers(rootRefDigest, remote.WithFilter(badFilter))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if next != nil {
+		t.Fatalf("next was not nil, was %v", next)
+	}
+	if numManifests := len(index.Manifests); numManifests != 0 {
+		t.Fatalf("expected index to contain 0 manifests, but had %d", numManifests)
+	}
+	if index.Annotations == nil {
+		t.Fatalf("index annotations were nil after filter was applied")
+	}
+	filtersApplied, hasExpectedAnnotation = index.Annotations[types.OCIAnnotationFiltersApplied]
+	if !hasExpectedAnnotation {
+		t.Fatalf("index annotations missing %s", types.OCIAnnotationFiltersApplied)
+	}
+	if filtersApplied != types.OCIFilterArtifactType {
+		t.Fatalf("index annotations %s expected to be %s but was %s",
+			types.OCIAnnotationFiltersApplied, types.OCIFilterArtifactType, filtersApplied)
+	}
 }
