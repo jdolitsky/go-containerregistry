@@ -44,6 +44,10 @@ const (
 	DockerVendorPrefix = "vnd.docker"
 )
 
+// OCI 1.1+ related
+const OCIFilterArtifactType = "artifactType"
+const OCIAnnotationFiltersApplied = "org.opencontainers.referrers.filtersApplied"
+
 // IsDistributable returns true if a layer is distributable, see:
 // https://github.com/opencontainers/image-spec/blob/master/layer.md#non-distributable-layers
 func (m MediaType) IsDistributable() bool {

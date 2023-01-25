@@ -264,11 +264,11 @@ func (f *fetcher) fetchReferrers(ctx context.Context, filter map[string]string, 
 	// If filter applied, filter out by artifactType and add annotation
 	// See https://github.com/opencontainers/distribution-spec/blob/main/spec.md#listing-referrers
 	if filter != nil {
-		if v, ok := filter["artifactType"]; ok {
+		if v, ok := filter[types.OCIFilterArtifactType]; ok {
 			if im.Annotations == nil {
 				im.Annotations = map[string]string{}
 			}
-			im.Annotations["org.opencontainers.referrers.filtersApplied"] = "artifactType"
+			im.Annotations[types.OCIAnnotationFiltersApplied] = types.OCIFilterArtifactType
 			tmp := []v1.Descriptor{}
 			for _, desc := range im.Manifests {
 				if desc.ArtifactType == v {
@@ -277,8 +277,8 @@ func (f *fetcher) fetchReferrers(ctx context.Context, filter map[string]string, 
 			}
 			im.Manifests = tmp
 		}
-
 	}
+
 	return &im, nil
 }
 
