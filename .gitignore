@@ -7,6 +7,3 @@ bazel*
 cmd/crane/crane
 cmd/gcrane/gcrane
 cmd/krane/krane
-
-crane
-sbom.json
